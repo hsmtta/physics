@@ -6,4 +6,4 @@ This repository contains some codes related to math and physics. I will upload n
 
 # directories
 
-lotkavolterra/ :Finite differnce solution of Lotka-Volterra eqs. 
+LotkaVolterra/ :Finite difference solution of Lotka-Volterra eqs. 
