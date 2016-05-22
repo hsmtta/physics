@@ -1,6 +1,6 @@
-#
-# (c) 2016 Takahiro Hashimoto
-#
+%
+% (c) 2016 Takahiro Hashimoto
+%
 
 data = dlmread("../result.dat", "", 2, 0);
 
