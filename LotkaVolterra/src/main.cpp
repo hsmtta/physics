@@ -2,8 +2,8 @@
 // (c) 2016 Takahiro Hashimoto
 //
 
-// 
-// Finete difference solution of Lotka-Voltera Equations
+//
+// Finite difference solution of Lotka-Volterra Equations
 //
 
 #include <iostream>
@@ -21,9 +21,32 @@ const float b = 4./3;
 const float c = 1.;
 const float d = 1.;
 
+const string ResultFilename = "result.dat";
+
+void PrintUsageAndExit(const string& arg0);
 
 int main(int argc, char const *argv[])
 {
+
+	bool isUseConservedQuantity = false;
+
+	// process command line arguments
+	for (int argIdx = 1; argIdx < argc; argIdx++)
+	{
+		if ( string(argv[argIdx]) == "--help" || string(argv[argIdx]) == "-h")
+		{
+			PrintUsageAndExit(argv[0]);
+		}
+		else if ( string(argv[argIdx]) == "-c" )
+		{
+			cout << "simulate with conserved quantity" << "\n";
+			isUseConservedQuantity = true;
+		}
+		else
+		{
+			PrintUsageAndExit(argv[0]);
+		}
+	}
 
 	float t[TimeStepMax];
 	float pop1[TimeStepMax], pop2[TimeStepMax];
@@ -36,11 +59,20 @@ int main(int argc, char const *argv[])
 	// update population
 	for ( int tIdx = 0; tIdx < TimeStepMax-1; tIdx++)
 	{
-		t[tIdx + 1] = dt + t[tIdx]; 
-		pop1[tIdx+1] = 
+		t[tIdx + 1] = dt + t[tIdx];
+		pop1[tIdx+1] =
 			(a*pop1[tIdx] - b*pop1[tIdx]*pop2[tIdx])*dt + pop1[tIdx];
-		pop2[tIdx+1] =
-			(-c*pop2[tIdx] + d*pop1[tIdx]*pop2[tIdx])*dt + pop2[tIdx];
+
+		if ( isUseConservedQuantity )
+		{
+			pop2[tIdx+1] = 
+
+		} 
+		else
+		{
+			pop2[tIdx+1] =
+				(-c*pop2[tIdx] + d*pop1[tIdx]*pop2[tIdx])*dt + pop2[tIdx];	
+		}
 	}
 
 	float v[TimeStepMax];
@@ -51,15 +83,25 @@ int main(int argc, char const *argv[])
 	}
 
 	// save result
-	std::cout << "# population evolution simulated by Lotka-Voltera equations" << "\n";
-	std::cout << "# t pop1 pop2 v" << "\n";
+
+	cout << "save result as " << ResultFilename << "\n";
+
+	cout << "# population evolution simulated by Lotka-Volterra equations" << "\n";
+	cout << "# t pop1 pop2 v" << "\n";
 	for ( int tIdx = 0; tIdx < TimeStepMax; tIdx++)
 	{
-		std::cout << t[tIdx] << " " 
-				  << pop1[tIdx] << " " 
-				  << pop2[tIdx] << " " 
+		std::cout << t[tIdx] << " "
+				  << pop1[tIdx] << " "
+				  << pop2[tIdx] << " "
 				  << v[tIdx] << "\n";
 	}
 
 	return 0;
+}
+
+void PrintUsageAndExit(const string& arg0)
+{
+	cout << "Usage: " << arg0 << "[options]" << "\n";
+	cout << "Options: -h | --help       print this usage" << "\n";
+	cout << "Options: -c                use conserved quantity" << "\n";
 }
