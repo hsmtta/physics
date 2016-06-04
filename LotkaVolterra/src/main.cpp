@@ -8,22 +8,24 @@
 
 #include <iostream>
 #include <math.h>
+#include <gsl/gsl_sf_lambert.h>
 
 const int TimeStepMax = 10000;
 
-const float dt = 0.01;
+const double dt = 0.01;
 
-const float popInit1 = 0.9;
-const float popInit2 = 0.9;
+const double popInit1 = 0.9;
+const double popInit2 = 0.9;
 
-const float a = 2./3;
-const float b = 4./3;
-const float c = 1.;
-const float d = 1.;
+const double a = 2./3;
+const double b = 4./3;
+const double c = 1.;
+const double d = 1.;
 
 const string ResultFilename = "result.dat";
 
 void PrintUsageAndExit(const string& arg0);
+double W0Extended(const double x);
 
 int main(int argc, char const *argv[])
 {
@@ -48,13 +50,16 @@ int main(int argc, char const *argv[])
 		}
 	}
 
-	float t[TimeStepMax];
-	float pop1[TimeStepMax], pop2[TimeStepMax];
+	double t[TimeStepMax];
+	double pop1[TimeStepMax], pop2[TimeStepMax];
 
 	// initialize t, pop1, pop2
 	t[0] = 0;
 	pop1[0] = popInit1;
 	pop2[0] = popInit2;
+
+	double v0 = -d*popInit1 + c*log(popInit1)
+				-b*popInit2 + a*log(popInit2);
 
 	// update population
 	for ( int tIdx = 0; tIdx < TimeStepMax-1; tIdx++)
@@ -65,8 +70,10 @@ int main(int argc, char const *argv[])
 
 		if ( isUseConservedQuantity )
 		{
-			pop2[tIdx+1] = 
-
+			const double p1 = pop1[tIdx+1];
+			double p2 = W0Extended(-b/a*exp((v0-d*log(p1)+c*p1)/a));
+			p2 = -a/b*p2;
+			pop2[tIdx+1] = p2;
 		} 
 		else
 		{
@@ -75,11 +82,11 @@ int main(int argc, char const *argv[])
 		}
 	}
 
-	float v[TimeStepMax];
+	double v[TimeStepMax];
 	for ( int tIdx = 0; tIdx < TimeStepMax; tIdx++)
 	{
-		v[tIdx] = -d*pop1[tIdx] + c*log(pop1[tIdx]) -
-				   b*pop2[tIdx] + a*log(pop2[tIdx]);
+		v[tIdx] = -d*pop1[tIdx] + c*log(pop1[tIdx])
+				  -b*pop2[tIdx] + a*log(pop2[tIdx]);
 	}
 
 	// save result
@@ -104,4 +111,23 @@ void PrintUsageAndExit(const string& arg0)
 	cout << "Usage: " << arg0 << "[options]" << "\n";
 	cout << "Options: -h | --help       print this usage" << "\n";
 	cout << "Options: -c                use conserved quantity" << "\n";
+}
+
+double W0Extended(const double x)
+{
+
+	gsl_sf_result result;
+	int status = gsl_sf_lambert_W0_e(x, &result);
+
+	double y;
+	if ( status != 0 )
+	{
+		y = -1.;
+	} 
+	else
+	{
+		y = result.val;
+	}
+
+	return y;
 }
