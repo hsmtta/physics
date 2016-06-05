@@ -6,6 +6,7 @@
 // Finite difference solution of Lotka-Volterra Equations
 //
 
+#include <stdlib.h>
 #include <iostream>
 #include <fstream>
 #include <math.h>
@@ -131,9 +132,11 @@ int main(int argc, char const *argv[])
 
 void PrintUsageAndExit(const string& arg0)
 {
-	cout << "Usage: " << arg0 << "[options]" << "\n";
+	cout << "Usage: " << arg0 << " [options]" << "\n";
 	cout << "Options: -h | --help       print this usage" << "\n";
 	cout << "Options: -c                use conserved quantity" << "\n";
+
+	exit(1);
 }
 
 double W1Extended(const double x, bool& isInsideRange)
