@@ -1,0 +1,73 @@
+%
+% Author(s):
+%       Takahiro Hashimoto
+%
+
+%% preamble %%
+    \documentclass[a4j]{article}
+    \hoffset -15 pt %1
+    \voffset -40 pt %2
+    \oddsidemargin 0 pt %3
+    \topmargin 4 pt %4
+    \headheight 20 pt %5
+    \headsep 18pt %6
+    \textheight 717 pt %7
+    \textwidth 483 pt %8
+    \marginparsep 18 pt %9
+    \marginparwidth 18 pt %10
+    \footskip 28 pt %11
+
+    % include packages for equation
+    \usepackage{amsmath}
+    \usepackage{amssymb}
+    \usepackage{bm}
+
+    % include packages for header and fooder
+    \usepackage{fancyhdr}
+    \usepackage{extramarks}
+    \pagestyle{fancy}
+    \lhead{}
+    %\rhead{\firstleftmark}
+    \rhead{}
+    \cfoot{}
+
+    \bibliographystyle{ieeetran}
+
+
+\begin{document}
+
+    Lotka-Volterra Equations\cite{wikilv, wollv} are couples of ordinary differential equations as follows
+
+    \begin{equation}
+        \label{Eq:LV1}
+        \frac{dp_1}{dt} = a p_1 -b p_1 p_2, 
+    \end{equation}
+
+    \begin{equation}
+        \label{Eq:LV2}
+        \frac{dp_2}{dt} = -c p_2 + d p_1 p_2, 
+    \end{equation}
+
+    where $p_1, p_2 \in \mathbb{R}^+ $ are dependent valiables of $t$, and $a, b, c, d \in \mathbb{R}^+ $ are constant parameters. Eliminating $t$ from Eqs.(\ref{Eq:LV1}) and (\ref{Eq:LV2}), conserved quantity of the system is derived as 
+    \begin{equation}
+        \label{Eq:cnsv}
+        V = -a \log(p_2) + b p_2 -c \log(p_1) + d p_1.
+    \end{equation}
+
+    Solving Eq.(\ref{Eq:cnsv}) for $p_2$,  
+    \begin{equation}
+        p_2 = -\frac{a}{b} \:
+            W \left( -\frac{b}{a} \exp \left(
+            \frac{1}{a} \left(-c \log p_1 + d p_1 -V 
+            \right) \right) \right),
+    \end{equation}
+
+    where $W$ is the Lambert W function\cite{wikilam}. 
+    $W$ is multivalued function with two branches ($W_{-1}, W_{0}$). 
+    We choose $ W_0 $ when $ -b/a \, p_2 \leq -1 $ and $W_{-1}$ for other case.
+
+    \addcontentsline{toc}{section}{References}
+    \bibliography{bibliography/Ref}
+
+
+\end{document}
