@@ -15,27 +15,24 @@
 using namespace std;
 
 const int TimeStepMax = 10000;
-
 const double dt = 0.01;
-
-const double popInit1 = 1.5;
-const double popInit2 = 1.0;
-
-const double a = 2./3;
-const double b = 4./3;
-const double c = 1.;
-const double d = 1.;
-
 const string ResultFilename = "result.dat";
 
 void PrintUsageAndExit(const string& arg0);
-double W1Extended(const double x, bool& isInsideRange);
+double Wm1Extended(const double x, bool& isInsideRange);
 double W0Extended(const double x, bool& isInsideRange);
 
 int main(int argc, char const *argv[])
 {
+	double popInit1 = 1.5;
+	double popInit2 = 1.0;
 
-	bool isUseConservedQuantity = false;
+	double a = 2./3;
+	double b = 4./3;
+	double c = 1.;
+	double d = 1.;
+
+	bool isUseInvariant = false;
 
 	// process command line arguments
 	for (int argIdx = 1; argIdx < argc; argIdx++)
@@ -44,16 +41,54 @@ int main(int argc, char const *argv[])
 		{
 			PrintUsageAndExit(argv[0]);
 		}
-		else if ( string(argv[argIdx]) == "-c" )
+		else if ( string(argv[argIdx]) == "-i" )
 		{
-			cout << "simulate with conserved quantity" << "\n";
-			isUseConservedQuantity = true;
+			cout << "simulate with invariant" << "\n";
+			isUseInvariant = true;
+		}
+		else if ( string(argv[argIdx]) == "-p" )
+		{
+			cout << "set parameters" << "\n";
+			if ( argIdx + 4 < argc )
+			{
+				a = atof(argv[argIdx+1]);
+				b = atof(argv[argIdx+2]);
+				c = atof(argv[argIdx+3]);
+				d = atof(argv[argIdx+4]);
+				argIdx = argIdx + 4;
+			} 
+			else
+			{
+				PrintUsageAndExit(argv[0]);
+			}
+		}
+		else if ( string(argv[argIdx]) == "-n" ) 
+		{
+			if ( argIdx + 2 < argc )
+			{
+				popInit1 = atof(argv[argIdx+1]);
+				popInit2 = atof(argv[argIdx+2]);
+				argIdx = argIdx + 2;
+			}
+			else
+			{
+				PrintUsageAndExit(argv[0]);
+			}
 		}
 		else
 		{
 			PrintUsageAndExit(argv[0]);
 		}
 	}
+
+	cout << "simulation parameters: a = " << a 
+		 << ", b = " << b
+		 << ", c = " << c
+		 << ", d = " << d << "\n";
+	cout << "initial populations: pop1 = " << popInit1
+		 << ", pop2 = " << popInit2 << "\n";
+
+	// init glut
 
 	double t[TimeStepMax];
 	double pop1[TimeStepMax], pop2[TimeStepMax];
@@ -76,7 +111,7 @@ int main(int argc, char const *argv[])
 		pop2[tIdx+1] =
 			(-c*pop2[tIdx] + d*pop1[tIdx]*pop2[tIdx])*dt + pop2[tIdx];
 
-		if ( isUseConservedQuantity )
+		if ( isUseInvariant )
 		{
 			const double p1 = pop1[tIdx+1];
 			const double p2 = pop2[tIdx+1];
@@ -85,8 +120,8 @@ int main(int argc, char const *argv[])
 
 			if ( b/a*p2 > 1 )
 			{
-				//cout << "m1 branch" << "\n";
-				p2_ = -a/b*W1Extended(
+				//cout << "-1 branch" << "\n";
+				p2_ = -a/b*Wm1Extended(
 					-b/a*(exp(1./a*(-c*log(p1)+d*p1-v0))), 
 					isInsideRange );
 			}
@@ -132,14 +167,18 @@ int main(int argc, char const *argv[])
 
 void PrintUsageAndExit(const string& arg0)
 {
-	cout << "Usage: " << arg0 << " [options]" << "\n";
-	cout << "Options: -h | --help       print this usage" << "\n";
-	cout << "Options: -c                use conserved quantity" << "\n";
 
-	exit(1);
+	cout << "Usage: " << arg0 << " <options>" << "\n";
+	cout << "Options:" << "\n";
+	cout << "-h | --help          print this usage" << "\n";
+	cout << "-i                   use invariant" << "\n";
+	cout << "-p <a> <b> <c> <d>   set parameters a, b, c and d" << "\n";
+	cout << "-n <p1> <p2>         set initial population p1, p2" << "\n";
+
+	exit(0);
 }
 
-double W1Extended(const double x, bool& isInsideRange)
+double Wm1Extended(const double x, bool& isInsideRange)
 {
 
 	gsl_sf_result result;
@@ -180,3 +219,9 @@ double W0Extended(const double x, bool& isInsideRange)
 
 	return y;
 }
+
+
+
+
+
+

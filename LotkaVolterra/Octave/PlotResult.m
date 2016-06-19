@@ -2,7 +2,7 @@
 % (c) 2016 Takahiro Hashimoto
 %
 
-data = dlmread('../build/result.dat', '', 2, 0);
+data = dlmread('../src/result.dat', '', 2, 0);
 
 figure(1);
 plot(data(:,1), data(:,2), data(:,1), data(:,3));
