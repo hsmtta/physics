@@ -17,14 +17,6 @@ const int TimeStepMax = 10000;
 
 const double dt = 0.01;
 
-const double popInit1 = 1.5;
-const double popInit2 = 1.0;
-
-const double a = 2./3;
-const double b = 4./3;
-const double c = 1.;
-const double d = 1.;
-
 const string ResultFilename = "result.dat";
 
 void PrintUsageAndExit(const string& arg0);
@@ -33,6 +25,13 @@ double W0Extended(const double x, bool& isInsideRange);
 
 int main(int argc, char const *argv[])
 {
+	const double popInit1 = 1.5;
+	const double popInit2 = 1.0;
+
+	double a = 2./3;
+	double b = 4./3;
+	double c = 1.;
+	double d = 1.;
 
 	bool isUseConservedQuantity = false;
 
@@ -47,6 +46,16 @@ int main(int argc, char const *argv[])
 		{
 			cout << "simulate with conserved quantity" << "\n";
 			isUseConservedQuantity = true;
+		}
+		else if ( string(argv[argIdx]) == "-p" )
+		{
+			if ( argIdx + 4 < argc )
+			{
+				
+			} else
+			{
+				PrintUsageAndExit(argv[0]);
+			}
 		}
 		else
 		{
@@ -84,7 +93,7 @@ int main(int argc, char const *argv[])
 
 			if ( b/a*p2 > 1 )
 			{
-				//cout << "m1 branch" << "\n";
+				//cout << "-1 branch" << "\n";
 				p2_ = -a/b*W1Extended(
 					-b/a*(exp(1./a*(-c*log(p1)+d*p1-v0))), 
 					isInsideRange );
@@ -177,3 +186,9 @@ double W0Extended(const double x, bool& isInsideRange)
 
 	return y;
 }
+
+
+
+
+
+
