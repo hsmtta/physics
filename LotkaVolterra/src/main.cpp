@@ -13,7 +13,7 @@
 
 using namespace std;
 
-const int TimeStepMax = 10000;
+const int TimeBuff = 10000;
 const double dt = 0.01;
 const string ResultFilename = "result.dat";
 
@@ -93,9 +93,13 @@ int main(int argc, char const *argv[])
 		 << ", pop2 = " << popInit2 << "\n";
 
 	// init glut
+	if ( isUseGlut ) 
+	{
+		
+	}
 
-	double t[TimeStepMax];
-	double pop1[TimeStepMax], pop2[TimeStepMax];
+	double t[TimeBuff];
+	double pop1[TimeBuff], pop2[TimeBuff];
 
 	// initialize t, pop1, pop2
 	t[0] = 0;
@@ -106,7 +110,7 @@ int main(int argc, char const *argv[])
 				-c*log(popInit1) + d*popInit1;
 
 	// update population
-	for ( int tIdx = 0; tIdx < TimeStepMax-1; tIdx++)
+	for ( int tIdx = 0; tIdx < TimeBuff-1; tIdx++)
 	{
 		t[tIdx + 1] = dt + t[tIdx];
 		pop1[tIdx+1] =
@@ -141,8 +145,8 @@ int main(int argc, char const *argv[])
 		}
 	}
 
-	double v[TimeStepMax];
-	for ( int tIdx = 0; tIdx < TimeStepMax; tIdx++)
+	double v[TimeBuff];
+	for ( int tIdx = 0; tIdx < TimeBuff; tIdx++)
 	{
 		v[tIdx] = -a*log(pop2[tIdx]) + b*pop2[tIdx]
 				  -c*log(pop1[tIdx]) + d*pop1[tIdx];
@@ -156,7 +160,7 @@ int main(int argc, char const *argv[])
 
 	ofs << "# population evolution simulated by Lotka-Volterra equations" << "\n";
 	ofs << "# t pop1 pop2 v" << "\n";
-	for ( int tIdx = 0; tIdx < TimeStepMax; tIdx++)
+	for ( int tIdx = 0; tIdx < TimeBuff; tIdx++)
 	{
 		ofs << t[tIdx] << " "
 			<< pop1[tIdx] << " "
