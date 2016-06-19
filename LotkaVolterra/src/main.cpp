@@ -32,6 +32,7 @@ int main(int argc, char const *argv[])
 	double d = 1.;
 
 	bool isUseInvariant = false;
+	bool isUseGlut = false;
 
 	// process command line arguments
 	for (int argIdx = 1; argIdx < argc; argIdx++)
@@ -73,6 +74,10 @@ int main(int argc, char const *argv[])
 			{
 				PrintUsageAndExit(argv[0]);
 			}
+		}
+		else if ( string(argv[argIdx]) == "-d")
+		{
+			isUseGlut = true;
 		}
 		else
 		{
