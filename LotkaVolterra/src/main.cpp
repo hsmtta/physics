@@ -10,7 +10,7 @@
 #include <fstream>
 #include <math.h>
 #include <gsl/gsl_sf_lambert.h>
-#include <GL/glut.h>
+#include <GLUT/glut.h>
 
 using namespace std;
 
@@ -23,7 +23,7 @@ double v0;
 
 bool isUseInvariant = false;
 
-double time[TimeBuff];
+double ti[TimeBuff];
 double pop1[TimeBuff], pop2[TimeBuff];
 
 void PrintUsageAndExit(const string& arg0);
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 
 	v0 = getInvariant(popInit1, popInit2);
 
-	time[0] = 0;
+	ti[0] = 0;
 	pop1[0] = popInit1;
 	pop2[0] = popInit2;
 
@@ -131,12 +131,12 @@ int main(int argc, char *argv[])
 		for ( int tIdx = 0; tIdx < TimeBuff-1; tIdx++)
 		{
 			// update population
-			const double t = time[tIdx];
+			const double t = ti[tIdx];
 			const double p1 = pop1[tIdx];
 			const double p2 = pop2[tIdx];
 			double tn, pn1, pn2;
 			update(t, p1, p2, tn, pn1, pn2);
-			time[tIdx+1] = tn;
+			ti[tIdx+1] = tn;
 			pop1[tIdx+1] = pn1;
 			pop2[tIdx+1] = pn2;
 
@@ -154,7 +154,7 @@ int main(int argc, char *argv[])
 		ofs << "# t pop1 pop2 v" << "\n";
 		for ( int tIdx = 0; tIdx < TimeBuff; tIdx++)
 		{
-			ofs << time[tIdx] << " "
+			ofs << ti[tIdx] << " "
 				<< pop1[tIdx] << " "
 				<< pop2[tIdx] << " "
 				<< v[tIdx] << "\n";
@@ -258,7 +258,7 @@ void display(void)
 {
 	static int count = 0;
 
-	const double t = time[count];
+	const double t = ti[count];
 	const double p1 = pop1[count];
 	const double p2 = pop2[count];
 
@@ -267,7 +267,7 @@ void display(void)
 
 	if ( ++count == TimeBuff -1) count = 0;
 
-	time[count] = tn;
+	ti[count] = tn;
 	pop1[count] = pn1;
 	pop2[count] = pn2;
 
