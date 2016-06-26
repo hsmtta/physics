@@ -14,7 +14,7 @@
 
 using namespace std;
 
-const int TimeBuff = 1000;
+const int TimeBuff = 200;
 const double dt = 0.1;
 const string ResultFilename = "result.dat";
 
@@ -36,9 +36,10 @@ void update(const double t, const double p1, const double p2,
 	        double &tn, double &pn1, double &pn2);
 
 void idle(void);
+void timer(int value);
 void display(void);
-void initGlutUser(void);
-void deinitGlutUser(void);
+void init(void);
+void deinit(void);
 
 int main(int argc, char *argv[])
 {
@@ -121,20 +122,32 @@ int main(int argc, char *argv[])
 	{
 		// init glut
 		glutInit(&argc, argv);
-		glutCreateWindow(argv[0]);
+		glutInitWindowSize(300,300);
+		glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA );
+		glutCreateWindow("Evolution of population 1 and 2");
 		glutDisplayFunc(display);
-		glutIdleFunc(idle);
+		// glutIdleFunc(idle);
+		// glEnable(GL_BLEND);
+		// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		initGlutUser();
+		// glEnable(GL_LINE_SMOOTH);
+		// glHint(GL_LINE_SMOOTH, GL_NICEST);
 
+		// glEnable(GL_POINT_SMOOTH);
+		// glHint(GL_POINT_SMOOTH, GL_NICEST);
+
+		glutTimerFunc(50, timer, 0);
+
+		init();
 		glutMainLoop();
-
-		deinitGlutUser();
+		deinit();
 	}
 	else
 	{
 		// simulate and save result
 		double v[TimeBuff];
+		v[0] = v0;
+
 		for ( int tIdx = 0; tIdx < TimeBuff-1; tIdx++)
 		{
 			// update population
@@ -147,7 +160,7 @@ int main(int argc, char *argv[])
 			pop1[tIdx+1] = pn1;
 			pop2[tIdx+1] = pn2;
 
-			v[tIdx+1] = getInvariant(p1, p2);
+			v[tIdx+1] = getInvariant(pn1, pn2);
 
 		}
 
@@ -238,7 +251,7 @@ void update(const double t, const double p1, const double p2,
 {
 	tn = dt + t;
 	pn1 = (a*p1 - b*p1*p2)*dt + p1;
-	pn2 = (-c*pn2 + d*p1*p2)*dt + p2;
+	pn2 = (-c*p2 + d*p1*p2)*dt + p2;
 
 	if ( isUseInvariant )
 	{
@@ -248,13 +261,13 @@ void update(const double t, const double p1, const double p2,
 		if ( b/a*p2 > 1 )
 		{
 			pn2_ = -a/b*Wm1Extended(
-				-b/a*(exp(1./a*(-c*log(p1)+d*p1-v0))), 
+				-b/a*(exp(1./a*(-c*log(pn1)+d*pn1-v0))), 
 				isInsideRange );
 		}
 		else
 		{
 			pn2_ = -a/b*W0Extended(
-				-b/a*(exp(1./a*(-c*log(p1)+d*p1-v0))), 
+				-b/a*(exp(1./a*(-c*log(pn1)+d*pn1-v0))), 
 				isInsideRange );
 		}
 
@@ -267,19 +280,24 @@ void idle(void)
   glutPostRedisplay();
 }
 
+void timer(int value) 
+{
+	glutPostRedisplay();
+	glutTimerFunc(16 , timer , 0);
+}
+
 void display(void)
 {
-	static int count = -1;
+	static int count = 0;
 
 	const double t = tArr[count];
 	const double p1 = pop1[count];
 	const double p2 = pop2[count];
 
 	double tn, pn1, pn2;
-	update(p1, p2, t, pn1, pn2, tn);
+	update(t, p1, p2, tn, pn1, pn2);
 
-	if ( ++count == TimeBuff -1) count = 0;
-	// cout << count << "\n";
+	if ( ++count == TimeBuff) count = 0;
 
 	tArr[count] = tn;
 	pop1[count] = pn1;
@@ -288,20 +306,38 @@ void display(void)
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glLineWidth(1.0);
-	glColor3f(1.0, 0.0, 0.0);
-	glBegin(GL_LINES);
-	for (int i = count +1, j = 0; j < TimeBuff ; ++i, ++j)
+	glColor3f(0.0, 0.0, 1.0);
+	glBegin(GL_LINE_STRIP);
+	for (int i=count+1, j=0; j<TimeBuff; ++i, ++j)
 	{
 		if ( i > TimeBuff -1) i = 0;
-		glVertex3d(xa[j], pop1[i]/10., 0.0);
-		// cout << xa[j] << " " << pop1[i] << "\n";
+		glVertex2d(xa[j], pop1[i]/7.);
 	}
 	glEnd();
 
+	glColor3f(0.0, 1.0, 0.0);
+	glBegin(GL_LINE_STRIP);
+	for (int i=count+1, j=0; j<TimeBuff; ++i, ++j)
+	{
+		if ( i > TimeBuff -1) i = 0;
+		glVertex2d(xa[j], pop2[i]/7);
+	}
+	glEnd();
+
+	// exit(1);
+
+	// glVertex2d(0,0);
+	// glVertex2d(0,0.5);
+	// glVertex2d(0.5,0.5);
+	// glVertex2d(0.5,0);
+
+	// glEnd();
+
 	glFlush();
+	glutSwapBuffers();
 }
 
-void initGlutUser(void)
+void init(void)
 {
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	
@@ -316,17 +352,10 @@ void initGlutUser(void)
 	}
 }
 
-void deinitGlutUser(void)
+void deinit(void)
 {
 	delete[] xa;
 }
-
-
-
-
-
-
-
 
 
 
