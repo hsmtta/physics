@@ -14,8 +14,8 @@
 
 using namespace std;
 
-const int TimeBuff = 10000;
-const double dt = 0.01;
+const int TimeBuff = 1000;
+const double dt = 0.1;
 const string ResultFilename = "result.dat";
 
 double a, b, c, d;
@@ -23,8 +23,10 @@ double v0;
 
 bool isUseInvariant = false;
 
-double ti[TimeBuff];
+double tArr[TimeBuff];
 double pop1[TimeBuff], pop2[TimeBuff];
+
+double *xa;
 
 void PrintUsageAndExit(const string& arg0);
 double Wm1Extended(const double x, bool& isInsideRange);
@@ -33,8 +35,10 @@ double getInvariant(const double p1, const double p2);
 void update(const double t, const double p1, const double p2,  
 	        double &tn, double &pn1, double &pn2);
 
+void idle(void);
 void display(void);
-void initDisplay(void);
+void initGlutUser(void);
+void deinitGlutUser(void);
 
 int main(int argc, char *argv[])
 {
@@ -109,7 +113,7 @@ int main(int argc, char *argv[])
 
 	v0 = getInvariant(popInit1, popInit2);
 
-	ti[0] = 0;
+	tArr[0] = 0;
 	pop1[0] = popInit1;
 	pop2[0] = popInit2;
 
@@ -119,10 +123,13 @@ int main(int argc, char *argv[])
 		glutInit(&argc, argv);
 		glutCreateWindow(argv[0]);
 		glutDisplayFunc(display);
+		glutIdleFunc(idle);
 
-		initDisplay();
+		initGlutUser();
 
 		glutMainLoop();
+
+		deinitGlutUser();
 	}
 	else
 	{
@@ -131,12 +138,12 @@ int main(int argc, char *argv[])
 		for ( int tIdx = 0; tIdx < TimeBuff-1; tIdx++)
 		{
 			// update population
-			const double t = ti[tIdx];
+			const double t = tArr[tIdx];
 			const double p1 = pop1[tIdx];
 			const double p2 = pop2[tIdx];
 			double tn, pn1, pn2;
 			update(t, p1, p2, tn, pn1, pn2);
-			ti[tIdx+1] = tn;
+			tArr[tIdx+1] = tn;
 			pop1[tIdx+1] = pn1;
 			pop2[tIdx+1] = pn2;
 
@@ -154,7 +161,7 @@ int main(int argc, char *argv[])
 		ofs << "# t pop1 pop2 v" << "\n";
 		for ( int tIdx = 0; tIdx < TimeBuff; tIdx++)
 		{
-			ofs << ti[tIdx] << " "
+			ofs << tArr[tIdx] << " "
 				<< pop1[tIdx] << " "
 				<< pop2[tIdx] << " "
 				<< v[tIdx] << "\n";
@@ -174,6 +181,7 @@ void PrintUsageAndExit(const string& arg0)
 	cout << "-i                   use invariant" << "\n";
 	cout << "-p <a> <b> <c> <d>   set parameters a, b, c and d" << "\n";
 	cout << "-n <p1> <p2>         set initial population p1, p2" << "\n";
+	cout << "-d                   display result\n";
 
 	exit(0);
 }
@@ -254,11 +262,16 @@ void update(const double t, const double p1, const double p2,
 	}
 }
 
+void idle(void)
+{
+  glutPostRedisplay();
+}
+
 void display(void)
 {
-	static int count = 0;
+	static int count = -1;
 
-	const double t = ti[count];
+	const double t = tArr[count];
 	const double p1 = pop1[count];
 	const double p2 = pop2[count];
 
@@ -266,24 +279,56 @@ void display(void)
 	update(p1, p2, t, pn1, pn2, tn);
 
 	if ( ++count == TimeBuff -1) count = 0;
+	// cout << count << "\n";
 
-	ti[count] = tn;
+	tArr[count] = tn;
 	pop1[count] = pn1;
 	pop2[count] = pn2;
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	glLineWidth(2.5);
+	glLineWidth(1.0);
 	glColor3f(1.0, 0.0, 0.0);
 	glBegin(GL_LINES);
-	glVertex3f(0.0, 0.0, 0.0);
-	glVertex3f(15, 0, 0);
+	for (int i = count +1, j = 0; j < TimeBuff ; ++i, ++j)
+	{
+		if ( i > TimeBuff -1) i = 0;
+		glVertex3d(xa[j], pop1[i]/10., 0.0);
+		// cout << xa[j] << " " << pop1[i] << "\n";
+	}
 	glEnd();
 
 	glFlush();
 }
 
-void initDisplay(void)
+void initGlutUser(void)
 {
-	glClearColor(0.0, 0.0, 1.0, 1.0);
+	glClearColor(1.0, 1.0, 1.0, 1.0);
+	
+	const double xStart = -1;
+	const double xEnd = 1;
+	const double delta = (xEnd - xStart)/(TimeBuff -1);
+	xa = new double[TimeBuff];
+
+	for (int i = 0; i < TimeBuff; ++i)
+	{
+		xa[i] = xStart + i*delta;
+	}
 }
+
+void deinitGlutUser(void)
+{
+	delete[] xa;
+}
+
+
+
+
+
+
+
+
+
+
+
+

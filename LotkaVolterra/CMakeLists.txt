@@ -27,6 +27,7 @@ if ( win32 )
 endif ( win32 )
 
 if ( UNIX )
+	set(CMAKE_CXX_FLAGS "-Wno-deprecated")
 	target_link_libraries(lotkavolterra gsl ${GLUT_LIBRARY} ${OPENGL_LIBRARY})
 endif ( UNIX )
 
