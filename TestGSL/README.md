@@ -1,2 +1,1 @@
-# testgsl
-Test codes of gsl library
+Test codes of gnu scientific library
